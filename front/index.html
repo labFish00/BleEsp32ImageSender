@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BLE LED Blinker</title>
+  </head>
+  <body>
+    <form id="textForm">
+      <input type="text" id="inputText" />
+      <button type="submit">Send</button>
+    </form>
+
+    <script>
+      const kUARTServiceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+      const kTXCharacteristicUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+
+      let device;
+      let server;
+      let service;
+      let characteristic;
+
+      document
+        .getElementById("textForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // フォームのデフォルト送信動作を防止
+          const text = document.getElementById("inputText").value; // 入力されたテキストを取得
+          sendData(text); // Bluetoothデバイスにテキストを送信する関数を呼び出す
+        });
+
+      const sendData = async (message) => {
+        if (!device) {
+          try {
+            device = await navigator.bluetooth.requestDevice({
+              filters: [{ services: [kUARTServiceUUID] }],
+            });
+
+            server = await device.gatt.connect();
+            service = await server.getPrimaryService(kUARTServiceUUID);
+            characteristic = await service.getCharacteristic(
+              kTXCharacteristicUUID
+            );
+          } catch (error) {
+            console.log("Error: " + error);
+            return;
+          }
+        }
+
+        let encoder = new TextEncoder();
+        let data = encoder.encode(message);
+
+        try {
+          await characteristic.writeValue(data);
+        } catch (error) {
+          console.log("Error: " + error);
+        }
+      };
+    </script>
+  </body>
+</html>
