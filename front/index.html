@@ -13,12 +13,31 @@
 
     <script>
       const kUARTServiceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-      const kTXCharacteristicUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+      const kTXCharacteristicUUID = "beb5483e-36e1-4688-b7f5-ea07361b26a9";
+      const kRXCharacteristicUUID = "beb5483f-36e1-4688-b7f5-ea07361b26a8";
 
       let device;
       let server;
       let service;
-      let characteristic;
+      let characteristicRx;
+      let characteristicTx;
+
+      const readData = async (characteristic) => {
+        const ary = [];
+        const value = await characteristic.readValue();
+        ary.push(new TextDecoder().decode(value));
+
+        // 特性値が変更されたときのイベントリスナーを追加
+        characteristic.addEventListener(
+          "characteristicvaluechanged",
+          (event) => {
+            console.log(new TextDecoder().decode(event.target.value));
+          }
+        );
+
+        // 通知を開始
+        await characteristic.startNotifications();
+      };
 
       document
         .getElementById("textForm")
@@ -37,9 +56,13 @@
 
             server = await device.gatt.connect();
             service = await server.getPrimaryService(kUARTServiceUUID);
-            characteristic = await service.getCharacteristic(
+            characteristicTx = await service.getCharacteristic(
               kTXCharacteristicUUID
             );
+            characteristicRx = await service.getCharacteristic(
+              kRXCharacteristicUUID
+            );
+            readData(characteristicRx);
           } catch (error) {
             console.log("Error: " + error);
             return;
@@ -50,7 +73,7 @@
         let data = encoder.encode(message);
 
         try {
-          await characteristic.writeValue(data);
+          await characteristicTx.writeValue(data);
         } catch (error) {
           console.log("Error: " + error);
         }
