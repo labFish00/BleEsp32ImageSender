@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BLE LED Blinker</title>
+    <style>
+      #messageLog {
+        height: 200px; /* 高さを固定 */
+        overflow-y: auto; /* 縦方向のオーバーフロー時にスクロールバーを表示 */
+      }
+    </style>
   </head>
   <body>
     <form id="textForm">
       <input type="text" id="inputText" />
       <button type="submit">Send</button>
     </form>
+    <div id="messageLog"></div>
 
     <script>
       const kUARTServiceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
@@ -21,6 +28,7 @@
       let service;
       let characteristicRx;
       let characteristicTx;
+      let messageLog = [];
 
       const readData = async (characteristic) => {
         const ary = [];
@@ -31,7 +39,9 @@
         characteristic.addEventListener(
           "characteristicvaluechanged",
           (event) => {
-            console.log(new TextDecoder().decode(event.target.value));
+            messageLog.push(new TextDecoder().decode(event.target.value));
+            document.getElementById("messageLog").innerText =
+              messageLog.join("\n");
           }
         );
 
