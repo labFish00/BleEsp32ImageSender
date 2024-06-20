@@ -77,7 +77,7 @@ void loop()
   {
     // データを送信
     Serial.println("Sending data");
-    String str = "test";
+    String str(millis() / 1000);
     pTxCharacteristic->setValue(str.c_str());
     pTxCharacteristic->notify();
   }

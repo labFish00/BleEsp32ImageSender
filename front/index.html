@@ -8,6 +8,13 @@
       #messageLog {
         height: 200px; /* 高さを固定 */
         overflow-y: auto; /* 縦方向のオーバーフロー時にスクロールバーを表示 */
+        margin-top: 0;
+      }
+      #messageArea {
+        border: 2px solid #000;
+        border-radius: 15px;
+        padding: 0px 10px;
+        margin-top: 20px;
       }
     </style>
   </head>
@@ -16,7 +23,10 @@
       <input type="text" id="inputText" />
       <button type="submit">Send</button>
     </form>
-    <div id="messageLog"></div>
+    <div id="messageArea">
+      <p>時は金なり</p>
+      <div id="messageLog"></div>
+    </div>
 
     <script>
       const kUARTServiceUUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
